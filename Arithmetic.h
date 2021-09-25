@@ -3,11 +3,14 @@
 #include <string>
 using namespace std;
 
-class Arithmetic {
-	string x;
-public:
-	Arithmetic(string s);
+class Expression {
 
-	string Derivative();
+	string compo[3];
+	string SingleDerivative(string term);
+public:
+	Expression();
+	Expression(string x, string y, string z);
+
+	string Derivative(string expression);
 };
 

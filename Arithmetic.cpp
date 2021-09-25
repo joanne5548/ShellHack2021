@@ -1,18 +1,31 @@
+#include <iostream>
 #include "Arithmetic.h"
 
-Arithmetic::Arithmetic(string s)
+Expression::Expression(string x, string y, string z)
 {
-	x = s;
+	compo[0] = x;
+	compo[1] = y;
+	compo[2] = z;
 }
 
-//first deal with a single term
-string Arithmetic::Derivative()
+//deal with a single term
+string Expression::SingleDerivative(string term)
 {
-	if (x == "0")
-		return 0;
-	int coef = stoi(x.substr(0, x.find("t")));
-	int power = stoi(x.substr(x.find("^") + 1, x.size() - x.find("^")));
-
+	int coef, power;
+	if (term.find("t") != string::npos)
+	{
+		if (term.find("t") == 0)
+			coef = 1;
+		else
+			coef = stoi(term.substr(0, term.find("t")));
+		if (term.find("^") != string::npos)
+			power = stoi(term.substr(term.find("^") + 1, term.size() - term.find("^")));
+		else
+			power = 1;
+	}
+	else
+		return "0";
+	
 	coef *= power;
 	power -= 1;
 	
@@ -20,8 +33,30 @@ string Arithmetic::Derivative()
 	if (coef != 1)
 		s = to_string(coef);
 	if (power == 0)
-		return s;
+		return to_string(coef);
 	else if (power == 1)
 		return s + "t";
 	return s + "t^" + to_string(power);
 }
+
+//derivative of one expression
+string Expression::Derivative(string expression)
+{
+	vector<string> terms;
+	while (expression.find("+") != string::npos)
+	{
+		int ind = expression.find("+");
+		terms.push_back(expression.substr(0, ind));
+		expression = expression.substr(ind + 1, expression.size() - ind);
+	}
+	terms.push_back(expression);
+
+	for (unsigned int i = 0; i < terms.size(); ++i)
+		terms[i] = SingleDerivative(terms[i]);
+
+	string s = terms[1] + "+" + terms[2] + "+" + terms[3];
+
+	return s;
+}
+
+//derivative of one vector (call Derivative function 3 times)
