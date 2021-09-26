@@ -19,12 +19,14 @@ string Expression::SingleDerivative(string term)
 		else
 			coef = stoi(term.substr(0, term.find("t")));
 		if (term.find("^") != string::npos)
-			power = stoi(term.substr(term.find("^") + 1, term.size() - term.find("^")));
+			power = stoi(term.substr(term.find("^") + 1, term.size() - term.find("^") - 1));
 		else
 			power = 1;
 	}
 	else
-		return "0";
+		return ""; //constant
+	if (power == 0) //t^0
+		return "";
 	
 	coef *= power;
 	power -= 1;
@@ -43,20 +45,79 @@ string Expression::SingleDerivative(string term)
 string Expression::Derivative(string expression)
 {
 	vector<string> terms;
-	while (expression.find("+") != string::npos)
+	vector<string> signs;
+	bool a = expression.find("+") != string::npos;
+	bool b = expression.find("-") != string::npos;
+
+	while (a || b)
 	{
-		int ind = expression.find("+");
+		string sign = "";
+		if (a && b)
+		{
+			if (expression.find("+") < expression.find("-"))
+			{
+				sign = "+";
+				signs.push_back("+");
+			}
+			else
+			{
+				sign = "-";
+				signs.push_back("-");
+			}
+		}
+		else if (a)
+		{
+			sign = "+";
+			signs.push_back("+");
+		}
+		else
+		{
+			sign = "-";
+			signs.push_back("-");
+		}
+
+		int ind = expression.find(sign);
 		terms.push_back(expression.substr(0, ind));
 		expression = expression.substr(ind + 1, expression.size() - ind);
-	}
-	terms.push_back(expression);
 
+		a = expression.find("+") != string::npos;
+		b = expression.find("-") != string::npos;
+	}
+	terms.push_back(expression); //deal with last term
+
+	string s = "";
 	for (unsigned int i = 0; i < terms.size(); ++i)
+	{
 		terms[i] = SingleDerivative(terms[i]);
 
-	string s = terms[1] + "+" + terms[2] + "+" + terms[3];
-
+		if (terms[i] == "")
+		{
+			s = s.substr(0, s.size() - 1);
+			if (!(i == 0 && signs[i] == "+") && i != terms.size() - 1) // second condition b/c we're not taking the first term's sign
+				s += signs[i];
+		}
+		else
+		{
+			if (i != terms.size() - 1)
+			{
+				s = s + terms[i] + signs[i];
+			}
+			else //last term
+				s += terms[i];
+		}
+	}
 	return s;
 }
 
-//derivative of one vector (call Derivative function 3 times)
+void Expression::VectorDerivative()
+{
+	compo[0] = Derivative(compo[0]);
+	compo[1] = Derivative(compo[1]);
+	compo[2] = Derivative(compo[2]);
+}
+
+void Expression::Print()
+{
+	cout << "<" << compo[0] << ", " << compo[1] << ", ";
+	cout << compo[2] << ">" << endl;
+}

@@ -12,5 +12,8 @@ public:
 	Expression(string x, string y, string z);
 
 	string Derivative(string expression);
+	void VectorDerivative();
+
+	void Print();
 };
 
